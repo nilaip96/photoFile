@@ -1,3 +1,29 @@
+require 'time'
+
+def solution(s)
+  photos = s.split("\n").each_with_index.map { |photo, index| parse(photo, index) }.group_by { |photo| photo[:city] }
+
+  photos.each_value do |city_photos|
+    city_photos.sort_by! { |photo| photo[:timestamp] }
+    n = city_photos.length.to_s.length
+    city_photos.each_with_index do |photo, idx|
+      photo[:name] = sprintf("%s%0#{n}d.%s", photo[:city], (idx + 1), photo[:ext])
+    end
+  end
+
+  photos.values.flatten.sort_by { |photo| photo[:index]}.map { |photo| photo[:name] }.join("\n")
+end
+
+def parse(photo, index)
+  name, city, timestamp = photo.split(", ")
+  {
+    city: city,
+    timestamp: Time.parse(timestamp),
+    name: name.partition(".").first,
+    ext: name.partition(".").last,
+    index: index
+  }
+end
 
 def test
   input = "photo.jpg, Krakow, 2013-09-05 14:08:15
@@ -40,7 +66,5 @@ Krakow10.jpg"
     puts "TEST FAILED"
   end
 end
-
-
 
 test if __FILE__ == $0
